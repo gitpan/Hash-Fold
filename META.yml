@@ -21,4 +21,4 @@ requires:
   Moose: '0'
   Sub::Exporter: '0'
   perl: '5.008003'
-version: v0.0.2
+version: v0.1.0
