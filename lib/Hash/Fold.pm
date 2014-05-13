@@ -18,7 +18,7 @@ use constant {
     VALUE => 1,
 };
 
-our $VERSION = '0.1.0';
+our $VERSION = '0.1.1';
 
 has on_object => (
     isa      => 'CodeRef',
@@ -369,7 +369,7 @@ This module provides functional and OO interfaces which can be used to flatten, 
 and merge nested hashrefs.
 
 Unless noted, the functions listed below are also available as methods. Options provided to the
-C<Hash::Fold> constructor can be supplied to the functions e.g.:
+Hash::Fold constructor can be supplied to the functions e.g.:
 
     use Hash::Fold;
 
@@ -383,14 +383,14 @@ is equivalent to:
 
     my $folded = fold($hash, delimiter => '/');
 
-Options (and constructor args) can be supplied as a list of pairs or a hashref, so the
+Options (and constructor args) can be supplied as a list of key/value pairs or a hashref, so the
 following are equivalent:
 
     my $folded = fold($hash,   delimiter => '/'  );
     my $folded = fold($hash, { delimiter => '/' });
 
-In addition, C<Hash::Fold> uses L<Sub::Exporter>, which allows functions to bake
-in options on import e.g.:
+In addition, Hash::Fold uses L<Sub::Exporter>, which allows functions to be imported with options
+baked in e.g.:
 
     use Hash::Fold fold => { delimiter => '/' };
 
@@ -402,26 +402,34 @@ As described above, the following options can be supplied as constructor args, i
 or per-function overrides. Under the hood, they are (L<Moose>) attributes which can be wrapped
 and overridden like any other attributes.
 
-=head2 array_delimiter (Str, ro)
+=head2 array_delimiter
 
-The delimiter prefixed to array elements when flattening and unflattening. Default: C<.>.
+B<Type>: Str, ro, default: "."
 
-=head2 hash_delimiter (Str, ro)
+The delimiter prefixed to array elements when flattening and unflattening.
 
-The delimiter prefixed to hash elements when flattening and unflattening. Default: C<.>.
+=head2 hash_delimiter
 
-=head2 delimiter (Str)
+B<Type>: Str, ro, default: "."
+
+The delimiter prefixed to hash elements when flattening and unflattening.
+
+=head2 delimiter
+
+B<Type>: Str
 
 This is effectively a write-only attribute which assigns the same string to L<"array_delimiter"> and
 L<"hash_delimiter">. It can only be supplied as a constructor arg or function option (which are
-equivalent) i.e. C<Hash::Fold> instances have no C<delimiter> method.
+equivalent) i.e. Hash::Fold instances have no C<delimiter> method.
 
-=head2 on_cycle (CodeRef, ro)
+=head2 on_cycle
+
+B<Type>: (Hash::Fold, Ref) -> None, ro
 
 A callback invoked whenever L<"fold"> encounters a circular reference i.e. a reference which contains
 itself as a nested value.
 
-The callback takes two arguments: the C<Hash::Fold> instance and the value e.g.:
+The callback takes two arguments: the Hash::Fold instance and the value e.g.:
 
     sub on_cycle {
         my ($folder, $value) = @_;
@@ -435,14 +443,16 @@ This callback merely provides a mechanism to report them (e.g. by issuing a warn
 
 The default callback does nothing.
 
-=head2 on_object (CodeRef, ro)
+=head2 on_object
+
+B<Type>: (Hash::Fold, Ref) -> Any, ro
 
 A callback invoked whenever L<"fold"> encounters a value for which the L<"is_object"> method returns true
 i.e. any reference that isn't an unblessed arrayref or unblessed hashref. This callback can be used to modify
 the value e.g. to return a traversable value (e.g. unblessed hashref) in place of a terminal (e.g.
 blessed hashref).
 
-The callback takes two arguments: the C<Hash::Fold> instance and the object e.g.:
+The callback takes two arguments: the Hash::Fold instance and the object e.g.:
 
     use Scalar::Util qw(blessed);
 
@@ -466,6 +476,8 @@ Nothing by default. The following functions can be imported.
 
 =head2 fold
 
+B<Signature>: (HashRef [, Hash|HashRef ]) -> HashRef
+
 Takes a nested hashref and returns a single-level hashref with (by default) dotted keys.
 The delimiter can be overridden via the L<"delimiter">, L<"array_delimiter"> and
 L<"hash_delimiter"> options.
@@ -476,17 +488,27 @@ although this can be overridden by supplying a suitable L<"on_object"> callback.
 
 =head2 flatten
 
+B<Signature>: (HashRef [, Hash|HashRef ]) -> HashRef
+
 Provided as an alias for L<"fold">.
 
 =head2 unfold
+
+B<Signature>: (HashRef [, Hash|HashRef ]) -> HashRef
 
 Takes a flattened hashref and returns the corresponding nested hashref.
 
 =head2 unflatten
 
+B<Signature>: (HashRef [, Hash|HashRef ]) -> HashRef
+
 Provided as an alias for L<"unfold">.
 
 =head2 merge
+
+B<Signature>: (HashRef [, HashRef... ]) -> HashRef
+
+B<Signature>: (ArrayRef[HashRef] [, Hash|HashRef ]) -> HashRef
 
 Takes a list of hashrefs which are then flattened, merged into one (in the order provided i.e.
 with precedence given to the rightmost arguments) and unflattened i.e. shorthand for:
@@ -494,7 +516,7 @@ with precedence given to the rightmost arguments) and unflattened i.e. shorthand
     unflatten { map { %{ flatten $_ } } @_ }
 
 To provide options to the C<merge> subroutine, pass the hashrefs in an arrayref, and the options
-(as usual) as a list of pairs or a hashref:
+(as usual) as a list of key/value pairs or a hashref:
 
     merge([ $hash1, $hash2, ... ],   delimiter => ...  )
     merge([ $hash1, $hash2, ... ], { delimiter => ... })
@@ -502,6 +524,8 @@ To provide options to the C<merge> subroutine, pass the hashrefs in an arrayref,
 =head1 METHODS
 
 =head2 is_object
+
+B<Signature>: Any -> Bool
 
 This method is called from L<"fold"> to determine whether a value should be passed to the L<"on_object">
 callback.
@@ -512,7 +536,7 @@ values (i.e. unblessed hashrefs, unblessed arrayrefs, and non-references).
 
 =head1 VERSION
 
-0.1.0
+0.1.1
 
 =head1 SEE ALSO
 
